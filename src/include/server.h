@@ -10,8 +10,10 @@
 using namespace std;
 using namespace CryptoPP;
 
+class Server{};
+
 // Server class for the one server variant
-class OneSVServer {
+class OneSVServer : Server {
   public:
   OneSVServer(uint64_t * DB_ptr, uint32_t LogN, uint32_t EntryB);
   void getEntry(uint32_t index, uint64_t *result);
@@ -32,7 +34,7 @@ class OneSVServer {
 };
 
 // Server class for the two server variant
-class TwoSVServer {
+class TwoSVServer : Server{
   public:
   TwoSVServer(uint64_t * DB_ptr, uint32_t LogN, uint32_t EntryB);
   void getEntryFromServer(uint32_t index, uint64_t *result);

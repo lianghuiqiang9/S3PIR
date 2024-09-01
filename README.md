@@ -1,4 +1,4 @@
-Artifact: Simple and Practical Sublinear Private Information Retrieval
+Artifact: Simple and Practical Sublinear Private Information Retrieval Using Dummy Subsets
 
 This artifact provides an implementation of the S3PIR protocol. Running the artifact will reproduce S3PIR's performance results given in table 2 and table 3.
 
