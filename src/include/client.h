@@ -6,7 +6,6 @@
 #include "server.h"
 #include "utils.h"
 
-// TODO: change flipcutoff to indicator bit in onesvclient code.
 
 typedef unsigned __int128 uint128_t;
 // Base client class.
@@ -74,11 +73,11 @@ public:
 	void Online(OneSVServer &server, uint32_t query, uint64_t *result);
 
 private:
-	uint32_t NextHintIndex;	// next hint index to use from backup hint
-	uint32_t BackupUsedAgain; //TODO
+	uint32_t NextHintIndex;	// Next hint index to use from backup hint
+	uint32_t BackupUsedAgain; // Track number of backup hints used
 
 	uint64_t *DBPart;	// Streamed partition
-	uint32_t *prfSelectVals; // TODO!
+	uint32_t *prfSelectVals; // Buffer for hint select values used to find cutoff.
 };
 
 /* 

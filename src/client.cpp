@@ -163,7 +163,7 @@ void TwoSVClient::Online(TwoSVServer & online_server, TwoSVServer & offline_serv
 
 	#ifdef DEBUG
 	// Check actual value 
-	online_server.getEntryFromServer(query, tmpEntry);
+	online_server.getEntry(query, tmpEntry);
 
 	for (uint32_t l = 0; l < B; l++){
 		if (result[l] != tmpEntry[l]) {
@@ -243,7 +243,7 @@ void OneSVClient::Offline(OneSVServer &server) {
 		uint16_t ePart;
 		bool b = 1;
 		while (b)	{
-			// keep picking until hitting an un-selected partition
+			// Keep picking until hitting an un-selected partition
 			ePart = NextDummyIdx() % PartNum; 
 			b = prf.PRF4Select(hint_i, ePart, SelectCutoff[hint_i]);	
 		}
