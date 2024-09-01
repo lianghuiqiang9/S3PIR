@@ -27,20 +27,28 @@ class PRFPartitionID{
       enc_.ProcessData(out, (uint8_t*) prfIn, 16);
   }
 
-  // Returns b given a partition and hint ID
-  bool PRF4Select(uint32_t hintID, uint32_t partID, uint32_t cutoff)
-  {
+  // Returns an indicator bit given a partition number, hint ID, and cutoff value for the hintID.
+  bool PRF4Select(uint32_t hintID, uint32_t partID, uint32_t cutoff) {
     uint32_t ctxt [4];
     evaluate((uint8_t*) ctxt, hintID, partID / 4, 1);		
     return ctxt[partID % 4] < cutoff;	 
   }
 
-  // Returns r given a partition and hint ID 
-  uint16_t PRF4Idx(uint32_t hintID, uint32_t partID)
-  {
+  // Returns a partition offset given a partition number and hint ID 
+  uint16_t PRF4Idx(uint32_t hintID, uint32_t partID) {
     uint16_t ctxt [8];
     evaluate((uint8_t*) ctxt, hintID, partID / 8, 2);	
     return ctxt[partID % 8];	
+  }
+
+  // Generate the partition offsets for the batch of 8 consecutive partitions that includes the given partID
+  void PRFBatchIdx(uint16_t* prfIndices, uint32_t hintID, uint32_t partID) {
+    evaluate((uint8_t*)prfIndices, hintID, partID / 8, 2);
+  }
+
+  // Generate the select values for the batch of 4 consecutive partitions that includes the given partID
+  void PRFBatchSelect(uint32_t* prfSelectVals, uint32_t hintID, uint32_t partID) {
+    evaluate((uint8_t *)prfSelectVals, hintID, partID / 4, 1);
   }
 
   private:
@@ -63,12 +71,12 @@ class PRFHintID{
       enc_.ProcessData(out, (uint8_t*) prfIn, 16);
   }
 
-  // Returns an indicator bit given a partition number, hint ID, and cutoff value for the hintID. Indicator bit is flipped if flip is set to 1.
-  bool PRF4Select(uint32_t hintID, uint32_t partID, uint32_t cutoff, bool flip = 0)
+  // Returns an indicator bit given a partition number, hint ID, and cutoff value for the hintID.
+  bool PRF4Select(uint32_t hintID, uint32_t partID, uint32_t cutoff)
   {
     uint32_t ctxt[4];
     evaluate((uint8_t*) ctxt, hintID / 4, partID, 1);		
-    return (ctxt[hintID % 4] < cutoff) ^ flip; 
+    return (ctxt[hintID % 4] < cutoff); 
   }
 
   // Returns a partition offset given a partition number and hint ID 
@@ -78,6 +86,7 @@ class PRFHintID{
     evaluate((uint8_t*) ctxt, hintID / 8, partID, 2);	
     return ctxt[hintID % 8];	
   }
+
 
   private:
   // AES-128

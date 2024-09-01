@@ -22,7 +22,7 @@ $(TARGET): $(SRC) $(DEPS)
 	$(CXX) -o $(TARGET) -I $(INCLUDE) $(SRC) $(CXXFLAGS) 
 
 $(TARGET)_debug: $(SRC) $(DEPS)
-	$(CXX) -DDebug -o $(TARGET)_debug -I $(INCLUDE) $(SRC) $(CXXFLAGS)
+	$(CXX) -DDEBUG -o $(TARGET)_debug -I $(INCLUDE) $(SRC) $(CXXFLAGS)
 
 $(TARGET)_simlargeserver: $(SRC) $(DEPS)
 	$(CXX) -DSimLargeServer -o $(TARGET)_simlargeserver -I $(INCLUDE) $(SRC) $(CXXFLAGS)
