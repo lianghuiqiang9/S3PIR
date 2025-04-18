@@ -74,10 +74,19 @@ void test_pir(uint64_t kLogDBSize, uint64_t kEntrySize, ofstream &output_csv)
 	cout << "LogDBSize: " << kLogDBSize << "\nEntrySize: " << kEntrySize << " bytes" << endl;
 	output_csv << kLogDBSize << ", " << kEntrySize << ", ";
 
-	initDatabase(&DB, kLogDBSize, kEntrySize);
-	Client client(kLogDBSize, kEntrySize);
-  Server server(DB, kLogDBSize, kEntrySize);
+	// 初始化数据库，生成DB是uint64的足够多维的数组
+	initDatabase(&DB, kLogDBSize, kEntrySize); 
 
+	/*
+	for (uint32_t l = 0; l < (((uint64_t) kEntrySize / 8) << kLogDBSize); l++) {
+		cout<<DB[l]<<" "; 
+	}cout<<"  DB"<<endl;
+	*/
+
+	Client client(kLogDBSize, kEntrySize);
+  	Server server(DB, kLogDBSize, kEntrySize);
+
+	// Client 进行offline操作，生成hint，
 	cout << "Running offline phase.." << endl;
 	auto start = chrono::high_resolution_clock::now();	
 	client.Offline(server);
@@ -85,6 +94,7 @@ void test_pir(uint64_t kLogDBSize, uint64_t kEntrySize, ofstream &output_csv)
 	auto offline_time = chrono::duration_cast<chrono::milliseconds>(end - start);
 	cout << "Offline: " << (double) offline_time.count() / 1000.0 << " s"<< endl;
 
+	//Client 进行query
 	start = chrono::high_resolution_clock::now();	
 	uint64_t *result = new uint64_t [kEntrySize/8];
 	int num_queries = 1 << (kLogDBSize / 2 + kLogDBSize % 2); 	// Run PartitionSize queries, < half of backup hints
@@ -101,12 +111,32 @@ void test_pir(uint64_t kLogDBSize, uint64_t kEntrySize, ofstream &output_csv)
 		uint16_t part = i % (1 << kLogDBSize / 2);
 		uint16_t offset = i % (1 << kLogDBSize / 2);
 		uint32_t query = (part << (kLogDBSize / 2)) + offset;
-		
+
+		//cout<<"query: "<<query<<endl;
+		//这里进行client query; server answer; 和更新hint的操作；
 		test_client_query(client, server, query, result);
+		
+		//验证是否相等
+		/*
+		uint32_t B = kEntrySize/8; 
+		for (uint32_t l = 0; l < B; l++) {
+			cout<<DB[query*B+l]<<" "; 
+		}cout<<endl;
+
+		for (uint32_t l = 0; l < B; l++) {
+			cout<<result[l]<<" "; 
+		}cout<<endl;
+		*/
+		
 	}
 	end = chrono::high_resolution_clock::now();	
 	auto total_online_time = chrono::duration_cast<chrono::milliseconds>( (end - start) );
 	double online_time = ((double) total_online_time.count()) / num_queries;
+
+	uint32_t B = kEntrySize/8; 
+	uint32_t PartNum = 1 << (kLogDBSize/2);
+	cout<<"Client query size: "<<PartNum * (32+1)/8<<" bytes"<<endl;
+	cout<<"Server response size: "<<B*64/8<<" bytes"<<endl;
 
 	cout << "Ran " << num_queries << " queries" << endl;
 	cout << "Online: " << total_online_time.count() << " ms"<< endl;
@@ -122,6 +152,10 @@ void test_pir(uint64_t kLogDBSize, uint64_t kEntrySize, ofstream &output_csv)
 	}
 	output_csv << endl;
 	cout << endl;
+
+	//Server answer
+
+
 }
 
 int main(int argc, char *argv[]){

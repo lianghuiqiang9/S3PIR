@@ -103,7 +103,8 @@ void TwoSVClient::Online(TwoSVServer & online_server, TwoSVServer & offline_serv
 	bool b_indicator = 0; // Indicator bit of the selected hint. 
 
 	// Run Algorithm 2
-  // Find a hint that has our desired query index
+  	// Find a hint that has our desired query index
+	//找到query位于大那个hint中
 	uint64_t hintIndex = find_hint(query, queryPartNum, queryOffset, b_indicator);
 	assert(hintIndex < M);
 
@@ -307,6 +308,7 @@ void OneSVClient::Online(OneSVServer &server, uint32_t query, uint64_t *result)
 
 	// Run Algorithm 2
 	// Find a hint that has our desired query index
+	// 找到query位于大那个hint中
 	uint64_t hintIndex = find_hint(query, queryPartNum, queryOffset, b_indicator);
 	assert(hintIndex < M);
 
@@ -319,7 +321,7 @@ void OneSVClient::Online(OneSVServer &server, uint32_t query, uint64_t *result)
 	if (hintID > M){
 		BackupUsedAgain++;
 	}
-
+	//这个for循环的内容未知，
 	for (uint32_t part = 0; part < PartNum; part++){
 		if (part == queryPartNum)	{
 			// Current partition is the queried partition 
@@ -343,19 +345,34 @@ void OneSVClient::Online(OneSVServer &server, uint32_t query, uint64_t *result)
 			Svec[part] = NextDummyIdx() & (PartSize-1);	
 		}
 	}
-
+	//bvec, Svec是 client 发送给 server 的内容
+	//cout<<"Client query size: "<<PartNum * (32+1)/8<<" bytes"<<endl;
 	// Make our query
+
+	/*
+	for (uint32_t l = 0; l < PartNum; l++) {
+		cout<<bvec[l]<<" "; 
+	}cout<<endl;
+	for (uint32_t l = 0; l < PartNum; l++) {
+		cout<<Svec[l]<<" "; 
+	}cout<<endl;
+	*/
+	//大胆猜测，不想跑了，bvec分配两边，
+	//然后(!b_indicator ^ shouldFlip) 确认是real还是dummy。
 	memset(Response_b0, 0, sizeof(uint64_t) * B);
 	memset(Response_b1, 0, sizeof(uint64_t) * B);
 	server.onlineQuery(bvec, Svec, Response_b0, Response_b1);
+	//cout<<"Server response size: "<<B*64/8<<" bytes"<<endl;
+	// Response_b0, Response_b1 是 server 回复的内容
 
 	// Set the query result to the correct response.
 	uint64_t * QueryResult = (!b_indicator ^ shouldFlip) ? Response_b0 : Response_b1;
-	 
-	for (uint32_t l = 0; l < B; l++) {
+	
+	//cout<<"B: "<<B<<endl;
+	for (uint32_t l = 0; l < B; l++) { // 这里的B是指有原先32B打包成B个uint64
 		result[l] = QueryResult[l] ^ Parity[hintIndex*B + l]; 
 	}
-
+	// result 就是回答的内容
 
 #ifdef DEBUG
 	// Check for correctness 
@@ -373,6 +390,8 @@ void OneSVClient::Online(OneSVServer &server, uint32_t query, uint64_t *result)
 		}
 	}
 #endif
+
+	//这里就是更新内容了。
 
 	while (SelectCutoff[NextHintIndex] == 0) {
 		// skip invalid hints
@@ -395,4 +414,5 @@ void OneSVClient::Online(OneSVServer &server, uint32_t query, uint64_t *result)
 	}
 	NextHintIndex++;
 	assert(NextHintIndex < (M + M/2));
+	//如果backup消耗完了，就要重新运行了。
 }

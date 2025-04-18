@@ -5,6 +5,19 @@
 # 基本吻合
 这里提一个设想，真的希望每一个论文都有一个sh存终端命令，一键运行。
 
+# 终端命令
+g++ -o s3pir -I src/include src/client.cpp src/server.cpp src/main.cpp src/utils.cpp src/include/client.h src/include/server.h src/include/utils.h -Ofast -std=c++11 -lcryptopp 
+
+./s3pir --one-server 20 32 output.csv
+
+g++ -DSimLargeServer -o s3pir_simlargeserver -I src/include src/client.cpp src/server.cpp src/main.cpp src/utils.cpp src/include/client.h src/include/server.h src/include/utils.h -Ofast -std=c++11 -lcryptopp 
+
+./s3pir_simlargeserver --one-server 20 32 output.csv
+
+# 下一步计划，
+1. 更新如何进行的
+2. 数据库怎么后面是0了呢？
+
 
 #  ./benchmark.sh -b SMALL
 Running small benchmark..
@@ -198,3 +211,32 @@ Cost Per Query: 0.532715 ms
 LogDBSize: 28
 EntrySize: 8 bytes
 Running offline phase..
+Invalid hints: 2
+Offline: 680.48 s
+Running 16384 queries
+Completed: 0%
+Completed: 20%
+Completed: 40%
+Completed: 60%
+Completed: 80%
+Completed: 100%
+Ran 16384 queries
+Online: 29634 ms
+Cost Per Query: 1.80872 ms
+
+== Two server variant ==
+LogDBSize: 28
+EntrySize: 32 bytes
+Running offline phase..
+Invalid hints: 2
+Offline: 847.514 s
+Running 16384 queries
+Completed: 0%
+Completed: 20%
+Completed: 40%
+Completed: 60%
+Completed: 80%
+Completed: 100%
+Ran 16384 queries
+Online: 40827 ms
+Cost Per Query: 2.49188 ms

@@ -22,6 +22,7 @@ void initDatabase(uint64_t** DB, uint64_t kLogDBSize, uint64_t kEntrySize){
 	uint64_t DBSizeInUint64 = ((uint64_t) 1 << (kLogDBSize-3)) + kEntrySize;		
 #else
 	uint64_t DBSizeInUint64 = ((uint64_t) kEntrySize / 8) << kLogDBSize;
+	cout<< "DBSizeInUint64: " << DBSizeInUint64 <<endl;
 #endif	
 	*DB = new uint64_t [DBSizeInUint64];
 	ifstream frand("/dev/urandom"); 
